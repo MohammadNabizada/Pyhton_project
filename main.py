@@ -1,6 +1,7 @@
 import pygame
 import time
 import random
+import sys
 
 pygame.init()
 
@@ -24,13 +25,33 @@ clock = pygame.time.Clock()
 
 # Create Snake block
 snake_block = 10
-snake_speed = 10
+snake_speed = 13
 
 #Fonts
 font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont("comicsansms",35)
 
-# Functions that were missing from the original code
+def game_music():
+    try:
+        pygame.mixer.music.load('music.mp3')
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+        return True
+    except pygame.error as e:
+        print(f"Could not load music: {e}")
+        return False
+
+def food_music():
+    try:
+        pygame.mixer.music.load('food.mp3')
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+        return True
+    except pygame.error as e:
+        print(f"Could not load music: {e}")
+        return False
+
+
 def Your_score(score):
     value = score_font.render("Your Score: " + str(score), True, yellow)
     dis.blit(value, [0, 0])
@@ -47,7 +68,7 @@ def message(msg, color):
 def gameLoop():
     game_over = False
     game_close = False
-
+    start = False
     #initial position of snake in the center of window
     x1 = dis_width / 2
     y1 = dis_height / 2  
@@ -62,44 +83,53 @@ def gameLoop():
     #position of foods
     foodx = round(random.randrange(0,dis_width - snake_block)/ 10.0) * 10.0
     foody = round(random.randrange(0,dis_height - snake_block) /10.0) * 10.0
-
+    
+    game_music()
+    
     while not game_over:
+        
         while game_close == True:
             dis.fill(blue)
             message("YOU LOST ! PRESS C TO PLAY OR Q TO QUIT", red) 
             Your_score(length_of_snake - 1)
             pygame.display.update() 
-
+            pygame.mixer.music.stop()
             for event in pygame.event.get(): 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         game_over = True
                         game_close = False 
+                        pygame.mixer.music.stop()
                     if event.key == pygame.K_c:
                         gameLoop()
+                        
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True 
-            
+                 
             if event.type == pygame.KEYDOWN:  
+                               
                 if event.key == pygame.K_LEFT:
                     x1_change = -snake_block
                     y1_change = 0
                 elif event.key == pygame.K_RIGHT:
+                    
                     x1_change = snake_block 
                     y1_change = 0
                 elif event.key == pygame.K_UP:
+                    
                     y1_change = -snake_block
                     x1_change = 0
                 elif event.key == pygame.K_DOWN:
+                    
                     y1_change = snake_block  
                     x1_change = 0
         
         # Check if snake hits the wall
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
             game_close = True 
-      
+            
         x1 += x1_change 
         y1 += y1_change 
 
@@ -127,9 +157,10 @@ def gameLoop():
 
         # Check if snake eats food
         if x1 == foodx and y1 == foody:
-            foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0  # Fixed: was ==, should be =
-            foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0  # Fixed spelling: was snake_blcok
-            length_of_snake += 1  
+            foodx = round(random.randrange(0, dis_width - snake_block) / 10.0) * 10.0  
+            foody = round(random.randrange(0, dis_height - snake_block) / 10.0) * 10.0  
+            length_of_snake += 1 
+            
 
         clock.tick(snake_speed)
       
